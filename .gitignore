@@ -1,0 +1,15 @@
+# STM32CubeIDE / Eclipse build output
+/Debug/
+/Release/
+
+# macOS
+.DS_Store
+
+# Eclipse / CubeIDE workspace metadata
+.metadata/
+
+# Backup / temp
+*.bak
+*.tmp
+*~
+.osx.project
