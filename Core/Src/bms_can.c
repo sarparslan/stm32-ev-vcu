@@ -70,7 +70,7 @@ uint8_t BmsCan_HandleRx(uint32_t canId, const uint8_t *data, uint8_t len)
       break;
 
     case CAN_ID_BMS_STATUS_2:
-      bmsStatus.batteryTemp_C = (int8_t)((int16_t)data[0] - 40);
+      bmsStatus.batteryTemp_C = (int16_t)((int16_t)data[0] - 40);
       bmsStatus.soc_percent = data[1];
       bmsStatus.bmsState = data[2];
       break;
