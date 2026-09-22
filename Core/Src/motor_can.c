@@ -68,7 +68,7 @@ uint8_t MotorCan_HandleRx(uint32_t canId, const uint8_t *data, uint8_t len)
       break;
 
     case CAN_ID_MOTOR_STATUS_2:
-      motorStatus.motorTemp_C = (int8_t)((int16_t)data[0] - 40);
+      motorStatus.motorTemp_C = (int16_t)((int16_t)data[0] - 40);
       motorStatus.motorState = data[1];
       motorStatus.motorDirection = data[2];
       break;

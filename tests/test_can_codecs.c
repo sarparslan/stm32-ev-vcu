@@ -149,6 +149,31 @@ static void test_motor_status2_and_3_decode_state_direction_flags(void)
   CHECK_EQ(MotorCan_GetStatus().aliveCounter, 200);
 }
 
+static void test_temperature_decode_covers_full_wire_range(void)
+{
+  /* The temp byte carries -40..215 C. Values above 127 C used to wrap
+     negative in an int8_t, hiding a hot motor from the fault check. */
+  BmsCan_Init();
+  MotorCan_Init();
+  uint8_t frame[8] = { 0 };
+
+  frame[0] = 130 + 40;
+  MotorCan_HandleRx(CAN_ID_MOTOR_STATUS_2, frame, 8);
+  CHECK_EQ(MotorCan_GetStatus().motorTemp_C, 130);
+
+  frame[0] = 0xFF;
+  MotorCan_HandleRx(CAN_ID_MOTOR_STATUS_2, frame, 8);
+  CHECK_EQ(MotorCan_GetStatus().motorTemp_C, 215);
+
+  frame[0] = 0x00;
+  MotorCan_HandleRx(CAN_ID_MOTOR_STATUS_2, frame, 8);
+  CHECK_EQ(MotorCan_GetStatus().motorTemp_C, -40);
+
+  frame[0] = 0xFF;
+  BmsCan_HandleRx(CAN_ID_BMS_STATUS_2, frame, 8);
+  CHECK_EQ(BmsCan_GetStatus().batteryTemp_C, 215);
+}
+
 static void test_motor_command_payload_encodes_negative_torque(void)
 {
   MotorCommand_t cmd = { 0 };
@@ -218,6 +243,7 @@ void run_can_codec_tests(void)
 
   RUN_TEST(test_motor_status1_decodes_signed_rpm_and_current);
   RUN_TEST(test_motor_status2_and_3_decode_state_direction_flags);
+  RUN_TEST(test_temperature_decode_covers_full_wire_range);
   RUN_TEST(test_motor_command_payload_encodes_negative_torque);
 
   RUN_TEST(test_charger_status_decodes_all_frames);

@@ -82,7 +82,7 @@ typedef struct
 {
   uint16_t batteryVoltage_dV;
   int16_t  batteryCurrent_dA;     // signed: + discharge, - charge
-  int8_t   batteryTemp_C;
+  int16_t  batteryTemp_C;         // wire range -40..215 C: does not fit in int8_t
   uint8_t  soc_percent;
   uint8_t  bmsState;
 
@@ -99,7 +99,7 @@ typedef struct
 {
   int16_t  motorRpm;
   int16_t  motorCurrent_dA;       // signed: + drive, - regen
-  int8_t   motorTemp_C;
+  int16_t  motorTemp_C;           // wire range -40..215 C: does not fit in int8_t
   uint8_t  motorState;
   uint8_t  motorDirection;       // MotorDirection_t: 0 neutral, 1 forward, 2 reverse
 

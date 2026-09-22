@@ -10,6 +10,7 @@
 #include "fake_hal.h"
 
 #include "vehicle_control.h"
+#include "motor_can.h"
 #include "ev_config.h"
 
 #define NOW_MS 10000U
@@ -277,6 +278,18 @@ static void test_motor_over_temperature_boundary(void)
   CheckFault(b, FAULT_OVER_TEMPERATURE);
 }
 
+static void test_decoded_hot_motor_trips_over_temperature(void)
+{
+  /* End to end: a 130 C motor frame straight off the wire must fault. */
+  MotorCan_Init();
+  const uint8_t s2[8] = { 130 + 40, MOTOR_STATE_RUNNING, MOTOR_DIR_FORWARD, 0, 0, 0, 0, 0 };
+  MotorCan_HandleRx(CAN_ID_MOTOR_STATUS_2, s2, 8);
+
+  Bench_t b = HealthyBench();
+  b.motor.motorTemp_C = MotorCan_GetStatus().motorTemp_C;
+  CheckFault(b, FAULT_OVER_TEMPERATURE);
+}
+
 static void test_battery_voltage_window(void)
 {
   Bench_t b = HealthyBench();
@@ -367,6 +380,7 @@ void run_vehicle_control_tests(void)
   RUN_TEST(test_comm_timeout_survives_tick_wraparound);
   RUN_TEST(test_battery_over_temperature_boundary);
   RUN_TEST(test_motor_over_temperature_boundary);
+  RUN_TEST(test_decoded_hot_motor_trips_over_temperature);
   RUN_TEST(test_battery_voltage_window);
   RUN_TEST(test_node_reported_faults);
   RUN_TEST(test_fault_is_latched_after_cause_clears);

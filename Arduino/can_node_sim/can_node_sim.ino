@@ -19,12 +19,12 @@ MCP_CAN CAN(CAN_CS_PIN);
 
 static void putU16LE(uint8_t *p, uint16_t v) { p[0] = v & 0xFF; p[1] = v >> 8; }
 static uint16_t encOff(int16_t v)  { return (uint16_t)(v + 32000); } 
-static uint8_t  encTemp(int8_t c)  { return (uint8_t)(c + 40); }
+static uint8_t  encTemp(int16_t c) { return (uint8_t)(c + 40); }
 
 /* BMS */
 uint16_t bmsVoltage_dV = 520;   // 52.0 V
 int16_t  bmsCurrent_dA = 0;     // 0.1 A: + discharge / - charge
-int8_t   bmsTemp_C     = 25;
+int16_t  bmsTemp_C     = 25;    // -40..215 C
 uint8_t  bmsSoc        = 60;    // %
 uint8_t  bmsState      = 1;     // 0 OFF,1 STANDBY,2 DISCHARGE,3 CHARGE,4 FAULT
 uint8_t  bmsFlags      = 0x0C;  // bit0 fault, bit1 chargeAllowed, bit2 dischargeAllowed, bit3 contactor
@@ -32,7 +32,7 @@ uint8_t  bmsFlags      = 0x0C;  // bit0 fault, bit1 chargeAllowed, bit2 discharg
 /* Motor */
 int16_t  motRpm        = 0;
 int16_t  motCurrent_dA = 0;     // 0.1 A: + drive / - regen
-int8_t   motTemp_C     = 30;
+int16_t  motTemp_C     = 30;    // -40..215 C
 uint8_t  motState      = 1;     // 0 OFF,1 READY,2 RUNNING,3 FAULT
 uint8_t  motDir        = 0;     // 0 neutral,1 forward,2 reverse
 uint8_t  motFlags      = 0x00;  // bit0 fault
