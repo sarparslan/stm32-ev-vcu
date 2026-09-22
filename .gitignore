@@ -13,3 +13,7 @@
 *.tmp
 *~
 .osx.project
+
+# Command-line / test build output
+/build/
+/tests/build/
