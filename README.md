@@ -1,5 +1,7 @@
 # STM32 EV VCU — Electric Vehicle Control Unit
 
+[![CI](https://github.com/sarparslan/stm32-ev-vcu/actions/workflows/ci.yml/badge.svg)](https://github.com/sarparslan/stm32-ev-vcu/actions/workflows/ci.yml)
+
 A FreeRTOS-based **Vehicle Control Unit (VCU / ECU)** for an electric vehicle, running on an
 STM32F407. The VCU listens to the **BMS**, **Motor controller** and **Charger** over a CAN bus,
 makes the high-level control decisions (drive / charge / fault handling), and sends command
@@ -169,8 +171,38 @@ or goes silent.
 ├── docs/              Architecture diagrams used in this README
 ├── Arduino/
 │   └── can_node_sim/  Arduino Uno + MCP2515 CAN node simulator
+├── tests/             Host-side unit tests (CAN codecs + state machine)
+├── scripts/           Command-line firmware build used by CI
 ├── stm32-ev-vcu.ioc   STM32CubeMX/CubeIDE project configuration
 └── *.ld               Linker scripts
+```
+
+---
+
+## Tests
+
+The CAN codecs and the vehicle state machine don't depend on the hardware, so they are
+unit-tested on the host with the regular C compiler. The HAL is replaced by a small stub with
+a fake `HAL_GetTick()`, which also lets the tests simulate timeouts without actually waiting.
+
+```bash
+make -C tests
+```
+
+What is covered:
+
+- **Wire format** — every status frame is decoded from raw bytes (offsets, little-endian,
+  signed values, flag bits) and every command payload is checked byte by byte.
+- **State machine** — IDLE / READY / DRIVE / CHARGING transitions for the drive and charge paths.
+- **Fault handling** — each threshold tested right at its boundary, comm timeout (including
+  `HAL_GetTick()` wrap-around), node-reported faults, and that a FAULT stays latched.
+
+On every push, [GitHub Actions](.github/workflows/ci.yml) runs the unit tests (with
+AddressSanitizer + UBSan) and builds the firmware with `arm-none-eabi-gcc`, treating warnings in
+the application code as errors. The same firmware build can be run locally:
+
+```bash
+scripts/build_firmware.sh
 ```
 
 ---
